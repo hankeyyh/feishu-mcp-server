@@ -17,20 +17,6 @@ const packageJson = JSON.parse(
   readFileSync(join(__dirname, '../package.json'), 'utf-8')
 );
 
-// 处理 SIGINT 信号
-process.on('SIGINT', () => {
-  // 确保所有输出都被刷新
-  process.stdout.write('');
-  process.exit(0);
-});
-
-// 处理 SIGTERM 信号
-process.on('SIGTERM', () => {
-  // 确保所有输出都被刷新
-  process.stdout.write('');
-  process.exit(0);
-});
-
 const program = new Command();
 
 // 基本信息配置
@@ -72,8 +58,17 @@ program
       // 使用标准输入输出作为传输层
       const transport = new StdioServerTransport();
 
-      console.log('正在启动服务器...');
       await server.startServer(transport);
+
+      // 监听 SIGINT 信号
+      process.on('SIGINT', async () => {
+        await server.stopServer();
+      });
+
+      // 监听 SIGTERM 信号
+      process.on('SIGTERM', async () => {
+        await server.stopServer();
+      });
     } catch (error) {
       console.error('服务器启动失败：', error);
       process.exit(1);

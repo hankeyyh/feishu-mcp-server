@@ -115,13 +115,18 @@ export class FeiShuMcpServer {
     }
 
     async startServer(transport: any) {
-        debug('开始启动服务器...');
+        debug('启动服务器...');
         try {
             await this.mcpServer.connect(transport);
-            debug('服务器连接成功');
         } catch (error) {
             debug('服务器启动失败:', error);
             throw error;
         }
+    }
+
+    async stopServer() {
+        debug('正在关闭服务器...');
+        await this.mcpServer.close();
+        debug('服务器已关闭');
     }
 }
