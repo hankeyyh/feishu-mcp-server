@@ -1,24 +1,36 @@
 {
   "name": "feishu-mcp-server",
   "version": "1.0.0",
-  "description": "npm feishu-mcp-server",
+  "description": "飞书文档 MCP 服务器，用于通过 MCP 协议访问飞书文档",
   "main": "dist/main.js",
+  "types": "dist/main.d.ts",
   "bin": {
     "feishu-mcp": "./dist/main.js"
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "dev": "tsc -w",
     "install-cli": "npm run build && npm link",
-    "uninstall-cli": "npm rm -g feishu-mcp-server"
+    "uninstall-cli": "npm rm -g feishu-mcp-server",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hankeyyh/feishu-mcp-server.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "feishu",
+    "mcp",
+    "lark",
+    "ai",
+    "document"
+  ],
+  "author": "hankeyyh",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/hankeyyh/feishu-mcp-server/issues"
