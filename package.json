@@ -2,17 +2,17 @@
   "name": "feishu-mcp-server",
   "version": "1.0.1",
   "description": "飞书文档 MCP 服务器，用于通过 MCP 协议访问飞书文档",
-  "main": "dist/main.js",
+  "main": "dist/index.js",
   "types": "dist/main.d.ts",
   "bin": {
-    "feishu-mcp": "./dist/main.js"
+    "feishu-mcp": "./dist/index.js"
   },
   "files": [
     "dist",
     "README.md"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-server": "ts-node src/index.ts start-server",
     "build": "tsc",
     "dev": "tsc -w",
     "install-cli": "npm run build && npm link",
@@ -44,6 +44,7 @@
     "@larksuiteoapi/node-sdk": "^1.45.0",
     "@modelcontextprotocol/sdk": "^1.7.0",
     "commander": "^13.1.0",
+    "dotenv": "^16.4.7",
     "zod": "^3.24.2"
   }
 }

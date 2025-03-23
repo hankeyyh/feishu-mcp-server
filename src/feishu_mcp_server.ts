@@ -2,33 +2,27 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import * as lark from '@larksuiteoapi/node-sdk';
 
-// 调试模式标志
-const DEBUG = process.env.DEBUG === 'true';
-
 // 调试日志函数
 function debug(...args: any[]) {
-  if (DEBUG) {
+  if (process.env.DEBUG === 'true') {
     console.error('[DEBUG]', ...args);
   }
 }
 
-export class DocMcpServer extends McpServer {
+export class FeiShuMcpServer {
     feishuClient: lark.Client;
-    constructor(name: string, version: string, feishuClient: lark.Client) {
-        debug('创建 DocMcpServer:', { name, version });
-        super({
-            name,
-            version
-        });
+    mcpServer: McpServer;
+
+    constructor(mcpServer: McpServer, feishuClient: lark.Client) {
         this.feishuClient = feishuClient;
-        debug('DocMcpServer 构造完成');
+        this.mcpServer = mcpServer;
     }
 
     Init() {
         debug('开始注册工具...');
         try {
             // 文档挂载在知识空间
-            this.tool("getWikiDoc",
+            this.mcpServer.tool("getWikiDoc",
                 "Retrieve the content of Feishu document from wiki space",
                 {
                     token: z.string().describe(
@@ -54,7 +48,7 @@ export class DocMcpServer extends McpServer {
             debug('Wiki 工具注册完成');
 
             // 文档挂载在云盘（或文件夹）
-            this.tool("getDocx",
+            this.mcpServer.tool("getDocx",
                 "Retrieve the content of Feishu document directly",
                 {
                     token: z.string().describe(
@@ -123,7 +117,7 @@ export class DocMcpServer extends McpServer {
     async startServer(transport: any) {
         debug('开始启动服务器...');
         try {
-            await this.connect(transport);
+            await this.mcpServer.connect(transport);
             debug('服务器连接成功');
         } catch (error) {
             debug('服务器启动失败:', error);

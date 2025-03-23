@@ -4,13 +4,32 @@ import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import * as lark from '@larksuiteoapi/node-sdk';
-import { DocMcpServer } from './feishu_mcp_server';
+import { FeiShuMcpServer } from './feishu_mcp_server';
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import * as dotenv from 'dotenv';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+
+// 加载 .env 文件
+dotenv.config();
 
 // 手动读取 package.json
 const packageJson = JSON.parse(
   readFileSync(join(__dirname, '../package.json'), 'utf-8')
 );
+
+// 处理 SIGINT 信号
+process.on('SIGINT', () => {
+  // 确保所有输出都被刷新
+  process.stdout.write('');
+  process.exit(0);
+});
+
+// 处理 SIGTERM 信号
+process.on('SIGTERM', () => {
+  // 确保所有输出都被刷新
+  process.stdout.write('');
+  process.exit(0);
+});
 
 const program = new Command();
 
@@ -24,18 +43,30 @@ program
 program
   .command('start-server')
   .description('启动 MCP 服务器')
-  .requiredOption('--app_id <app_id>', '飞书应用 app_id')
-  .requiredOption('--app_secret <app_secret>', '飞书应用 app_secret')
+  .option('--app_id <app_id>', '飞书应用 app_id')
+  .option('--app_secret <app_secret>', '飞书应用 app_secret')
   .action(async (options) => {
     try {
+      const appId = options.app_id || process.env.APP_ID;
+      const appSecret = options.app_secret || process.env.APP_SECRET;
+
+      if (!appId || !appSecret) {
+        throw new Error('缺少必要的配置：APP_ID 和 APP_SECRET。请在 .env 文件中设置或通过命令行参数提供。');
+      }
+
       // 初始化飞书客户端
       const client = new lark.Client({
-        appId: options.app_id,
-        appSecret: options.app_secret
+        appId,
+        appSecret
       });
+      // 初始化 MCP 服务器
+      const mcpServer = new McpServer({
+        name: 'feishu-mcp',
+        version: packageJson.version
+      })
 
       // 初始化 MCP 服务器
-      const server = new DocMcpServer('feishu-mcp', packageJson.version, client);
+      const server = new FeiShuMcpServer(mcpServer, client);
       server.Init();
 
       // 使用标准输入输出作为传输层
