@@ -19,8 +19,14 @@ npm install -g feishu-mcp-server
 
 2. 在Cursor Mcp Model 中输入：
 
+Windows:
 ```cmd
 cmd /c feishu-mcp start-server --app_id <app_id> --app_secret <app_secret>
+```
+
+macOS/Linux:
+```bash
+feishu-mcp start-server --app_id <app_id> --app_secret <app_secret>
 ```
 
 ## 配置说明
