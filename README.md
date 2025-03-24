@@ -22,9 +22,11 @@
 npm install -g feishu-mcp-server
 ```
 
-2. 在Cursor Mcp Model 中配置：
+2. Cursor MCP 支持两种模式，任选一种：
 
-选择Command模式，输入
+- Command 模式：
+
+在Cursor Mcp Model 中配置，选择 Command 模式，输入
 
 Windows:
 ```cmd
@@ -36,12 +38,27 @@ macOS/Linux:
 feishu-mcp start-server --app_id <app_id> --app_secret <app_secret>
 ```
 
+- SSE 模式
+
+在控制台启动 Server：
+``` bash
+feishu-mcp start-server --app_id <app_id> --app_secret <app_secret> --sse --port <port>
+```
+
+在Cursor Mcp Model 中配置，选择 SSE 模式，输入
+
+``` bash
+http://localhost:<port>/sse
+```
+
 ## 配置说明
 
 需要配置以下参数：
 
 - `app_id`: 飞书应用 App ID
 - `app_secret`: 飞书应用 App Secret
+- `sse`: 用 SSE 模式启动
+- `port`: SSE 端口
 
 ## 开发
 
