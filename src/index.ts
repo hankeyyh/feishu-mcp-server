@@ -5,11 +5,9 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import * as lark from '@larksuiteoapi/node-sdk';
 import { FeiShuMcpServer } from './feishu_mcp_server';
-import * as dotenv from 'dotenv';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-
-// 加载 .env 文件
-dotenv.config();
+import { logger } from './log';
+import { env } from './env';
 
 // 手动读取 package.json
 const packageJson = JSON.parse(
@@ -34,10 +32,10 @@ program
   .option('--port <port>', '如启用 SSE 模式，指定端口号')
   .action(async (options) => {
     try {
-      const appId = options.app_id || process.env.APP_ID;
-      const appSecret = options.app_secret || process.env.APP_SECRET;
-      const sse = options.sse || process.env.SSE === 'true';
-      const port = options.port || process.env.PORT;
+      const appId = options.app_id || env.appId;
+      const appSecret = options.app_secret || env.appSecret;
+      const sse = options.sse || env.sse;
+      const port = options.port || env.port;
 
       if (!appId || !appSecret) {
         throw new Error('缺少必要的配置：APP_ID 和 APP_SECRET。请在 .env 文件中设置或通过命令行参数提供。');
@@ -79,7 +77,7 @@ program
       }
 
     } catch (error) {
-      console.error('服务器启动失败：', error);
+      logger.error('服务器启动失败：', error);
       process.exit(1);
     }
   });

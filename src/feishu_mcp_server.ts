@@ -5,14 +5,8 @@ import * as lark from '@larksuiteoapi/node-sdk';
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import http from 'http';
+import { logger } from "./log";
 
-
-// 调试日志函数
-function debug(...args: any[]) {
-    if (process.env.DEBUG === 'true') {
-        console.error('[DEBUG]', ...args);
-    }
-}
 
 export class FeiShuMcpServer {
     feishuClient: lark.Client;
@@ -28,7 +22,7 @@ export class FeiShuMcpServer {
     }
 
     Init() {
-        debug('开始注册工具...');
+        logger.info('开始注册工具...');
         try {
             // 文档挂载在知识空间
             this.mcpServer.tool("getWikiDoc",
@@ -39,22 +33,22 @@ export class FeiShuMcpServer {
                     )
                 },
                 async (args) => {
-                    debug('调用 getWikiDoc:', args);
+                    logger.info('调用 getWikiDoc:', args);
                     try {
                         const doc = await this.getWikiDoc(args.token);
-                        debug('getWikiDoc 成功');
+                        logger.info('getWikiDoc 成功');
                         return {
                             content: [{ type: "text", text: doc || "" }]
                         }
                     } catch (err) {
-                        debug('getWikiDoc 失败:', err);
+                        logger.info('getWikiDoc 失败:', err);
                         return {
                             content: [{ type: "text", text: `Error: ${err}` }]
                         }
                     }
                 }
             );
-            debug('Wiki 工具注册完成');
+            logger.info('Wiki 工具注册完成');
 
             // 文档挂载在云盘（或文件夹）
             this.mcpServer.tool("getDocx",
@@ -65,37 +59,37 @@ export class FeiShuMcpServer {
                     )
                 },
                 async (args) => {
-                    debug('调用 getDocx:', args);
+                    logger.info('调用 getDocx:', args);
                     try {
                         const doc = await this.getDocx(args.token);
-                        debug('getDocx 成功');
+                        logger.info('getDocx 成功');
                         return {
                             content: [{ type: "text", text: doc || "" }]
                         }
                     } catch (err) {
-                        debug('getDocx 失败:', err);
+                        logger.info('getDocx 失败:', err);
                         return {
                             content: [{ type: "text", text: `Error: ${err}` }]
                         }
                     }
                 }
             );
-            debug('Docx 工具注册完成');
+            logger.info('Docx 工具注册完成');
         } catch (error) {
-            console.error('工具注册失败:', error);
+            logger.error('工具注册失败:', error);
             throw error;
         }
     }
 
     async getWikiDoc(token: string) {
-        debug('获取 Wiki 文档:', token);
+        logger.info('获取 Wiki 文档:', token);
         const response = await this.feishuClient.wiki.v2.space.getNode({
             params: {
                 token: token,
                 obj_type: "wiki"
             }
         });
-        debug('Wiki API 响应:', response);
+        logger.info('Wiki API 响应:', response);
         if (response.code !== 0) {
             throw new Error(`Failed to get wiki node: ${response.msg}`);
         }
@@ -110,13 +104,13 @@ export class FeiShuMcpServer {
     }
 
     async getDocx(token: string) {
-        debug('获取 Docx 文档:', token);
+        logger.info('获取 Docx 文档:', token);
         const response = await this.feishuClient.docx.v1.document.rawContent({
             path: {
                 document_id: token
             }
         });
-        debug('Docx API 响应:', response);
+        logger.info('Docx API 响应:', response);
         if (response.code !== 0) {
             throw new Error(`Failed to get docx content: ${response.msg}`);
         }
@@ -124,18 +118,18 @@ export class FeiShuMcpServer {
     }
 
     async startStdioServer() {
-        debug('启动stdio服务器...');
+        logger.info('启动stdio服务器...');
         try {
             const transport = new StdioServerTransport();
             await this.mcpServer.connect(transport);
         } catch (error) {
-            debug('服务器启动失败:', error);
+            logger.info('服务器启动失败:', error);
             throw error;
         }
     }
 
     async startSSEServer(port: number) {
-        debug('启动SSE服务器...');
+        logger.info('启动SSE服务器...');
         try {
             const app = express();
             app.get("/sse", async (req, rsp) => {
@@ -151,26 +145,26 @@ export class FeiShuMcpServer {
             })
             this.httpServer = app.listen(port, (err) => {
                 if (err) {
-                    debug('SSE 服务器启动失败:', err);
+                    logger.info('SSE 服务器启动失败:', err);
                     throw err;
                 }
-                debug(`SSE endpoint available at: http://localhost:${port}/sse`);
-                debug(`message endpoint available at: http://localhost:${port}/messages`);
+                logger.info(`SSE endpoint available at: http://localhost:${port}/sse`);
+                logger.info(`message endpoint available at: http://localhost:${port}/messages`);
             })            
         } catch (error) {
-            debug('服务器启动失败:', error);
+            logger.info('服务器启动失败:', error);
             throw error;
         }
     }
 
     async stopServer() {
-        debug('正在关闭服务器...');
+        logger.info('正在关闭服务器...');
         if (this.httpServer) {
             this.httpServer.close((err) => {
-                debug('HTTP 服务器已关闭', err ? err : '');
+                logger.info('HTTP 服务器已关闭', err ? err : '');
             });
         }
         await this.mcpServer.close();
-        debug('MCP 服务器已关闭');
+        logger.info('MCP 服务器已关闭');
     }
 }
