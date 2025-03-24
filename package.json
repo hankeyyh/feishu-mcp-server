@@ -1,6 +1,6 @@
 {
   "name": "feishu-mcp-server",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "飞书文档 MCP 服务器，用于通过 MCP 协议访问飞书文档",
   "main": "dist/index.js",
   "types": "dist/main.d.ts",
