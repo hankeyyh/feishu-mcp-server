@@ -37,6 +37,7 @@
   },
   "homepage": "https://github.com/hankeyyh/feishu-mcp-server#readme",
   "devDependencies": {
+    "@types/express": "^5.0.1",
     "@types/node": "^22.13.11",
     "typescript": "^5.8.2"
   },

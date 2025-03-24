@@ -5,7 +5,6 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import * as lark from '@larksuiteoapi/node-sdk';
 import { FeiShuMcpServer } from './feishu_mcp_server';
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import * as dotenv from 'dotenv';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
@@ -31,13 +30,20 @@ program
   .description('启动 MCP 服务器')
   .option('--app_id <app_id>', '飞书应用 app_id')
   .option('--app_secret <app_secret>', '飞书应用 app_secret')
+  .option('--sse', '是否启用 SSE 模式')
+  .option('--port <port>', '如启用 SSE 模式，指定端口号')
   .action(async (options) => {
     try {
       const appId = options.app_id || process.env.APP_ID;
       const appSecret = options.app_secret || process.env.APP_SECRET;
+      const sse = options.sse || process.env.SSE === 'true';
+      const port = options.port || process.env.PORT;
 
       if (!appId || !appSecret) {
         throw new Error('缺少必要的配置：APP_ID 和 APP_SECRET。请在 .env 文件中设置或通过命令行参数提供。');
+      }
+      if (sse && !port) {
+        throw new Error('如启用 SSE 模式，请指定端口号。');
       }
 
       // 初始化飞书客户端
@@ -55,11 +61,6 @@ program
       const server = new FeiShuMcpServer(mcpServer, client);
       server.Init();
 
-      // 使用标准输入输出作为传输层
-      const transport = new StdioServerTransport();
-
-      await server.startServer(transport);
-
       // 监听 SIGINT 信号
       process.on('SIGINT', async () => {
         await server.stopServer();
@@ -69,6 +70,14 @@ program
       process.on('SIGTERM', async () => {
         await server.stopServer();
       });
+
+      // 启动 feishu-mcp-server
+      if (sse) {
+        await server.startSSEServer(port);
+      } else {
+        await server.startStdioServer();
+      }
+
     } catch (error) {
       console.error('服务器启动失败：', error);
       process.exit(1);

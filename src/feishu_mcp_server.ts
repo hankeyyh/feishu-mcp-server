@@ -1,21 +1,30 @@
+import express from "express";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import * as lark from '@larksuiteoapi/node-sdk';
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import http from 'http';
+
 
 // 调试日志函数
 function debug(...args: any[]) {
-  if (process.env.DEBUG === 'true') {
-    console.error('[DEBUG]', ...args);
-  }
+    if (process.env.DEBUG === 'true') {
+        console.error('[DEBUG]', ...args);
+    }
 }
 
 export class FeiShuMcpServer {
     feishuClient: lark.Client;
     mcpServer: McpServer;
+    sseTransport: SSEServerTransport | null;
+    httpServer: http.Server | null;
 
     constructor(mcpServer: McpServer, feishuClient: lark.Client) {
         this.feishuClient = feishuClient;
         this.mcpServer = mcpServer;
+        this.sseTransport = null;
+        this.httpServer = null;
     }
 
     Init() {
@@ -114,10 +123,40 @@ export class FeiShuMcpServer {
         return response.data?.content;
     }
 
-    async startServer(transport: any) {
-        debug('启动服务器...');
+    async startStdioServer() {
+        debug('启动stdio服务器...');
         try {
+            const transport = new StdioServerTransport();
             await this.mcpServer.connect(transport);
+        } catch (error) {
+            debug('服务器启动失败:', error);
+            throw error;
+        }
+    }
+
+    async startSSEServer(port: number) {
+        debug('启动SSE服务器...');
+        try {
+            const app = express();
+            app.get("/sse", async (req, rsp) => {
+                this.sseTransport = new SSEServerTransport("/messages", rsp);
+                await this.mcpServer.connect(this.sseTransport);
+            })
+            app.post("/messages", async (req, rsp) => {
+                if (!this.sseTransport) {
+                    rsp.status(400).send("SSE 服务器未启动");
+                    return;
+                }
+                await this.sseTransport.handlePostMessage(req, rsp);
+            })
+            this.httpServer = app.listen(port, (err) => {
+                if (err) {
+                    debug('SSE 服务器启动失败:', err);
+                    throw err;
+                }
+                debug(`SSE endpoint available at: http://localhost:${port}/sse`);
+                debug(`message endpoint available at: http://localhost:${port}/messages`);
+            })            
         } catch (error) {
             debug('服务器启动失败:', error);
             throw error;
@@ -126,7 +165,12 @@ export class FeiShuMcpServer {
 
     async stopServer() {
         debug('正在关闭服务器...');
+        if (this.httpServer) {
+            this.httpServer.close((err) => {
+                debug('HTTP 服务器已关闭', err ? err : '');
+            });
+        }
         await this.mcpServer.close();
-        debug('服务器已关闭');
+        debug('MCP 服务器已关闭');
     }
 }
