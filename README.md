@@ -8,6 +8,11 @@
 - 支持访问飞书云文档
 - 支持 MCP 协议集成到 AI 应用中
 
+## 前期准备
+
+1. 在[飞书开放平台](https://open.feishu.cn/)创建应用
+2. 对应用进行[文档授权](https://open.feishu.cn/document/uAjLw4CM/ugTN1YjL4UTN24CO1UjN/trouble-shooting/how-to-add-permissions-to-app)
+
 
 ## 在Cursor中使用
 
@@ -17,7 +22,9 @@
 npm install -g feishu-mcp-server
 ```
 
-2. 在Cursor Mcp Model 中输入：
+2. 在Cursor Mcp Model 中配置：
+
+选择Command模式，输入
 
 Windows:
 ```cmd
@@ -33,9 +40,8 @@ feishu-mcp start-server --app_id <app_id> --app_secret <app_secret>
 
 需要配置以下参数：
 
-- `app_id`: 飞书应用的 App ID
-- `app_secret`: 飞书应用的 App Secret
-- `log`: 日志文件路径（可选）
+- `app_id`: 飞书应用 App ID
+- `app_secret`: 飞书应用 App Secret
 
 ## 开发
 
