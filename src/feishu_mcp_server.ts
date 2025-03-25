@@ -5,7 +5,7 @@ import * as lark from '@larksuiteoapi/node-sdk';
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import http from 'http';
-import { logger } from "./log";
+import { logger } from "./logger";
 
 
 export class FeiShuMcpServer {
@@ -41,7 +41,7 @@ export class FeiShuMcpServer {
                             content: [{ type: "text", text: doc || "" }]
                         }
                     } catch (err) {
-                        logger.info('getWikiDoc 失败:', err);
+                        logger.error('getWikiDoc 失败:', err);
                         return {
                             content: [{ type: "text", text: `Error: ${err}` }]
                         }
@@ -67,7 +67,7 @@ export class FeiShuMcpServer {
                             content: [{ type: "text", text: doc || "" }]
                         }
                     } catch (err) {
-                        logger.info('getDocx 失败:', err);
+                        logger.error('getDocx 失败:', err);
                         return {
                             content: [{ type: "text", text: `Error: ${err}` }]
                         }
@@ -123,7 +123,7 @@ export class FeiShuMcpServer {
             const transport = new StdioServerTransport();
             await this.mcpServer.connect(transport);
         } catch (error) {
-            logger.info('服务器启动失败:', error);
+            logger.error('服务器启动失败:', error);
             throw error;
         }
     }
@@ -145,14 +145,14 @@ export class FeiShuMcpServer {
             })
             this.httpServer = app.listen(port, (err) => {
                 if (err) {
-                    logger.info('SSE 服务器启动失败:', err);
+                    logger.error('SSE 服务器启动失败:', err);
                     throw err;
                 }
                 logger.info(`SSE endpoint available at: http://localhost:${port}/sse`);
                 logger.info(`message endpoint available at: http://localhost:${port}/messages`);
             })            
         } catch (error) {
-            logger.info('服务器启动失败:', error);
+            logger.error('服务器启动失败:', error);
             throw error;
         }
     }

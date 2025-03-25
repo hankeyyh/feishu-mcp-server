@@ -1,6 +1,6 @@
 {
   "name": "feishu-mcp-server",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "飞书文档 MCP 服务器，用于通过 MCP 协议访问飞书文档",
   "main": "dist/index.js",
   "types": "dist/main.d.ts",
@@ -17,7 +17,9 @@
     "dev": "tsc -w",
     "install-cli": "npm run build && npm link",
     "uninstall-cli": "npm rm -g feishu-mcp-server",
-    "prepublishOnly": "npm run build"
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "prepack": "npm run clean && npm run build"
   },
   "repository": {
     "type": "git",
@@ -39,6 +41,7 @@
   "devDependencies": {
     "@types/express": "^5.0.1",
     "@types/node": "^22.13.11",
+    "rimraf": "^6.0.1",
     "typescript": "^5.8.2"
   },
   "dependencies": {

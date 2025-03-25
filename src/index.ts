@@ -6,7 +6,7 @@ import { join } from 'path';
 import * as lark from '@larksuiteoapi/node-sdk';
 import { FeiShuMcpServer } from './feishu_mcp_server';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { logger } from './log';
+import { logger } from './logger';
 import { env } from './env';
 
 // 手动读取 package.json

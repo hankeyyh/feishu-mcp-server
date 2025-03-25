@@ -2,7 +2,7 @@ import { createLogger, format, transports } from 'winston';
 import { env } from './env';
 
 export const logger = createLogger({
-    level: env.debug ? 'debug' : 'info',
+    level: env.debug ? 'debug' : 'warn',
     defaultMeta: {server: "feishu-mcp-server"},
     format: format.combine(
         format.timestamp({
