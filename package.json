@@ -18,8 +18,7 @@
     "install-cli": "npm run build && npm link",
     "uninstall-cli": "npm rm -g feishu-mcp-server",
     "clean": "rimraf dist",
-    "prepublishOnly": "npm run clean && npm run build",
-    "prepack": "npm run clean && npm run build"
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "repository": {
     "type": "git",
