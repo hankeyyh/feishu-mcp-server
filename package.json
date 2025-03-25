@@ -16,7 +16,7 @@
     "build": "tsc",
     "dev": "tsc -w",
     "install-cli": "npm run build && npm link",
-    "uninstall-cli": "npm rm -g feishu-mcp-server",
+    "uninstall-cli": "npm uninstall -g feishu-mcp-server",
     "clean": "rimraf dist",
     "prepublishOnly": "npm run clean && npm run build"
   },
